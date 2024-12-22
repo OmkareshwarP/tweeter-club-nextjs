@@ -1,9 +1,9 @@
 {
-  "name": "nextjs-graphql-boilerplate",
+  "name": "tweeter-club-nextjs",
   "version": "0.1.0",
   "private": true,
-  "description": "Next.Js + Apollo GraphQL + Tailwind CSS Boilerplate with TypeScript",
-  "repository": "git@github.com:OmkareshwarP/nextjs-graphql-boilerplate.git",
+  "description": "Tweeter Club web application using NextJS, TypeScript and GraphQL",
+  "repository": "git@github.com:OmkareshwarP/tweeter-club-nextjs.git",
   "contributors": [
     {
       "name": "OmkareshwarP",
