@@ -1,0 +1,83 @@
+// icon sizes
+$icon-xs: 0.5rem;
+$icon-s: 1rem;
+$icon-m: 1.5rem;
+$icon-l: 2rem;
+
+// Spacings
+$spacing-s: 0.5rem;
+$spacing-m: 1rem;
+$spacing-l: 1.5rem;
+$spacing-xl: 2rem;
+
+// Break points
+$breakpoint-phone: 320px;
+$breakpoint-tablet: 744px;
+$breakpoint-laptop: 1080px;
+
+$pageContentWidth: 1080px;
+
+@mixin centerDiv {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+@mixin flexColStartCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+@mixin flexColStartStart {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+@mixin flexRowDivCenter {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin bgImgProps {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+@mixin googleFontRobotoMono {
+  font-family: var(--font-roboto-mono);
+}
+
+@mixin primaryFont {
+  color: var(--primary-color);
+  @include googleFontRobotoMono;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.024px;
+}
+
+@mixin truncateText {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Number of lines to show before truncating */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin borderLine {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(225deg, #ff0000, #ffa000);
+}

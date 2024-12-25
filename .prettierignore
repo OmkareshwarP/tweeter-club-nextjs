@@ -1,0 +1,30 @@
+// .prettierignore
+# Ignore build output
+.next
+build/
+dist/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore static files
+public/
+
+# Ignore configuration files (optional, only if you don't want them formatted)
+.eslintrc
+.prettierrc
+.babelrc
+tsconfig.json
+package.json
+
+# Ignore test files (optional, if you don't want to format test files)
+**/*.test.tsx
+**/*.test.ts
+
+# Ignore assets (optional)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.json

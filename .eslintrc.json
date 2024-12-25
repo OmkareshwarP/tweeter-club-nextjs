@@ -1,3 +1,15 @@
 {
-  "extends": ["next/core-web-vitals", "prettier"]
+  "ignorePatterns": [
+    "node_modules", 
+    ".next", 
+    "public",
+    "package-lock.json",
+    ".env"
+  ],
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "no-console": "warn",
+    "react/no-unescaped-entities": "off"
+  }
 }
