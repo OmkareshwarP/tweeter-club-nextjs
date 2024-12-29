@@ -1,5 +1,5 @@
-import CustomPage from '@/components/customPage/CustomPage';
+import HomeScreen from '@/components/home/HomeScreen';
 
 export default function HomePage() {
-  return <CustomPage>CustomPage</CustomPage>;
+  return <HomeScreen />;
 }

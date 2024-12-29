@@ -4,8 +4,7 @@ import '@/styles/styles.scss';
 import { GA_TRACKING_ID, OG_DEFAULT_DESCRIPTION, OG_DEFAULT_TITLE } from '@/lib/constants';
 import Script from 'next/script';
 import { localFontsClassName } from '@/fonts';
-import { Toaster } from 'react-hot-toast';
-import Providers from './providers';
+import Navigation from '@/components/navigation/Navigation';
 
 export const metadata: Metadata = {
   title: OG_DEFAULT_TITLE,
@@ -29,9 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body className={localFontsClassName}>
-        <Toaster />
-        <Providers>{children}</Providers>
-        <div className={"dfvjv 'dfvd' vdfkjvndkf"}>dscs</div>
+        <Navigation>{children}</Navigation>
       </body>
     </html>
   );
