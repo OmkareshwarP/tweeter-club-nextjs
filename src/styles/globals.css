@@ -3,7 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background-color: #fff;
+  --background-color: #f7f9f9;
+  --primary-bg-color: #f7f9f9;
+  --secondary-bg-color: #ffffff;
+  --primary-btn-color: #01080d;
+  --primary-text-color: #000000;
+  --secondary-text-color: #ffffff;
   --text-color: #000;
   --primary-color: #6200ea;
 }
@@ -26,7 +31,12 @@ button {
 
 /* Dark theme */
 body.dark-theme {
-  --background-color: #090909;
+  --background-color: #01080d;
+  --primary-bg-color: #01080d;
+  --secondary-bg-color: #000000;
+  --primary-btn-color: #f7f9f9;
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #000000;
   --text-color: #fff;
   --primary-color: #bb86fc;
 }

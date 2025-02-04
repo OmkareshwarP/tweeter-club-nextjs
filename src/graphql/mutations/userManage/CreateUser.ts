@@ -5,9 +5,8 @@ export const CREATE_USER = gql`
     $email: String!
     $provider: String!
     $verificationStatus: String!
-    $firstname: String!
-    $lastname: String!
-    $gender: String
+    $name: String!
+    $username: String!
     $profilePictureMediaId: String
     $signUpIpv4Address: String
   ) {
@@ -15,9 +14,8 @@ export const CREATE_USER = gql`
       email: $email
       provider: $provider
       verificationStatus: $verificationStatus
-      firstname: $firstname
-      lastname: $lastname
-      gender: $gender
+      name: $name
+      username: $username
       profilePictureMediaId: $profilePictureMediaId
       signUpIpv4Address: $signUpIpv4Address
     ) {

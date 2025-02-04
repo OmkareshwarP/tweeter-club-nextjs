@@ -12,9 +12,9 @@ const deviceSlice = createSlice({
   name: 'device',
   initialState: userInitialState,
   reducers: {
-    setDeviceInfo: (state, action: PayloadAction<{ data: DeviceState }>) => {
-      const { data } = action.payload;
-      state.isLaptop = data.isLaptop;
+    setDeviceSize: (state, action: PayloadAction<{ isLaptop: boolean }>) => {
+      const { isLaptop } = action.payload;
+      state.isLaptop = isLaptop;
     },
     //
     resetDeviceInfo: (state) => {
@@ -23,5 +23,5 @@ const deviceSlice = createSlice({
   }
 });
 
-export const { setDeviceInfo, resetDeviceInfo } = deviceSlice.actions;
+export const { setDeviceSize, resetDeviceInfo } = deviceSlice.actions;
 export default deviceSlice.reducer;

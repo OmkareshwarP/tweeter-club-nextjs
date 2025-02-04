@@ -5,7 +5,7 @@ import { FirebaseError } from 'firebase/app';
 import { fbAuth } from './firebaseConfig';
 import store from '@/redux/store';
 import { resetAuth } from '@/redux/slices/authSlice';
-import { resetBasicUserInfo } from '@/redux/slices/userSlice';
+import { resetUser } from '@/redux/slices/userSlice';
 
 export const logOutHandler = async () => {
   const currentState = store.getState();
@@ -16,7 +16,7 @@ export const logOutHandler = async () => {
   }
   //
   store.dispatch(resetAuth());
-  store.dispatch(resetBasicUserInfo());
+  store.dispatch(resetUser());
   //
   localStorage.removeItem('authToken');
   localStorage.removeItem('fbToken');

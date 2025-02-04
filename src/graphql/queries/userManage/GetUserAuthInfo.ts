@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const GET_BASIC_USER_INFO_BY_USERNAME = gql`
-  query GetBasicUserInfoByUsername($username: String!) {
-    getBasicUserInfoByUsername(username: $username) {
+export const GET_USER_AUTH_INFO = gql`
+  query GetUserAuthInfo {
+    getUserAuthInfo {
       error
       message
       statusCode
@@ -11,8 +11,7 @@ export const GET_BASIC_USER_INFO_BY_USERNAME = gql`
         userId
         email
         username
-        firstname
-        lastname
+        name
         profilePictureMediaId
       }
     }

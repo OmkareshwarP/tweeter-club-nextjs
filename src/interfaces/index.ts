@@ -1,4 +1,5 @@
-import { IBasicUserInfo } from './User';
+import { IPost } from './Post';
+import { IUserAuthInfo, IUserInfo, IUserSettings } from './User';
 
 interface IResponseData {
   error: boolean;
@@ -8,4 +9,4 @@ interface IResponseData {
   data: any;
 }
 
-export type { IResponseData, IBasicUserInfo };
+export type { IResponseData, IUserAuthInfo, IUserInfo, IUserSettings, IPost };

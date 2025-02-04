@@ -1,19 +1,22 @@
 import { gql } from '@apollo/client';
 
-export const GET_BASIC_USER_INFO = gql`
-  query GetBasicUserInfo {
-    getBasicUserInfo {
+export const GET_USER_INFO = gql`
+  query GetUserInfo {
+    getUserInfo {
       error
       message
       statusCode
       errorCodeForClient
       data {
         userId
-        email
         username
-        firstname
-        lastname
+        name
         profilePictureMediaId
+        bio
+        location
+        website
+        dob
+        createdAt
       }
     }
   }

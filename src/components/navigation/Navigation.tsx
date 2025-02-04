@@ -25,7 +25,7 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
     return (
       <>
         <Toaster />
-        <div className={''}>
+        <div className={'w-[100%] h-[100%]'}>
           {/* redux provider */}
           <Provider store={store}>
             <ApolloProvider client={userManageClient}>

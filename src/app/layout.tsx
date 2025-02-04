@@ -5,6 +5,7 @@ import { GA_TRACKING_ID, OG_DEFAULT_DESCRIPTION, OG_DEFAULT_TITLE } from '@/lib/
 import Script from 'next/script';
 import { localFontsClassName } from '@/fonts';
 import Navigation from '@/components/navigation/Navigation';
+import HomeScreen from '@/components/home/HomeScreen';
 
 export const metadata: Metadata = {
   title: OG_DEFAULT_TITLE,
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={localFontsClassName}>
         <Navigation>{children}</Navigation>
+        {/* <HomeScreen /> */}
       </body>
     </html>
   );

@@ -2,19 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from './DashboardPage.module.scss';
-import { darkTheme, lightTheme } from '@/styles/themes';
 import { useRouter } from 'next/navigation';
 import DashboardMobileLayout from './dashboardMobile/DashboardMobile';
 import DashboardLaptopLayout from './dashboardLaptop/DashboardLaptop';
 import { useDispatch, useSelector } from 'react-redux';
-import { setDeviceInfo } from '@/redux/slices/deviceSlice';
-import { GET_BASIC_USER_INFO } from '@/graphql/queries';
+import { setDeviceSize } from '@/redux/slices/deviceSlice';
+import { GET_USER_AUTH_INFO, GET_USER_SETTINGS } from '@/graphql/queries';
 import { useQuery } from '@apollo/client';
 import { userManageClient } from '@/lib/apollo-client';
 import { RootState } from '@/redux/store';
-import { IBasicUserInfo } from '@/interfaces';
+import { IUserAuthInfo, IUserSettings } from '@/interfaces';
 import { logOutHandler } from '@/lib/firebase/auth';
-import { setBasicUserInfo } from '@/redux/slices/userSlice';
+import { setUserAuthInfo, updateUserSettingsState } from '@/redux/slices/userSlice';
 
 interface DashboardPageProps {
   children: React.ReactNode;
@@ -22,32 +21,26 @@ interface DashboardPageProps {
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ children }) => {
   const router = useRouter();
-  const [theme, setTheme] = useState<any>(lightTheme);
   const userAuthStore = useSelector((state: RootState) => state.auth.userAuth);
   const dispatch = useDispatch();
-  const userEmail = userAuthStore?.email;
+  const fbUserEmail = userAuthStore?.email;
   //
-  const { data, error, loading } = useQuery(GET_BASIC_USER_INFO, {
+  const { data, error, loading } = useQuery(GET_USER_AUTH_INFO, {
     client: userManageClient,
-    skip: !userEmail || userEmail.length <= 0
+    skip: !fbUserEmail || fbUserEmail.length <= 0
   });
 
   useEffect(() => {
-    if (data && data?.getBasicUserInfo && data.getBasicUserInfo?.data?.userId) {
-      console.log({ dataLo: data.getBasicUserInfo.data });
-      const basicUserInfo = data.getBasicUserInfo.data as IBasicUserInfo;
-      if (basicUserInfo?.email !== userEmail) {
+    if (data && data?.getUserAuthInfo && data.getUserAuthInfo?.data?.userId) {
+      console.log({ dataLo: data.getUserAuthInfo.data });
+      const _userInfo = data.getUserAuthInfo.data as IUserAuthInfo;
+      if (_userInfo?.email !== fbUserEmail) {
         logOutHandler();
         return;
       }
-      dispatch(setBasicUserInfo({ data: basicUserInfo }));
+      dispatch(setUserAuthInfo({ data: _userInfo }));
     }
   }, [data, error, loading]);
-
-  useEffect(() => {
-    // Set body class based on the current theme
-    document.body.classList.toggle('dark-theme', theme === darkTheme);
-  }, [theme]);
 
   const [isLaptop, setIsLaptop] = useState(false);
 
@@ -57,7 +50,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ children }) => {
     const handleResize = () => {
       const _isLaptop = mediaQuery.matches;
       setIsLaptop(_isLaptop);
-      dispatch(setDeviceInfo({ data: { isLaptop: _isLaptop } }));
+      dispatch(setDeviceSize({ isLaptop: _isLaptop }));
     };
     handleResize(); // Initialize on mount
 
@@ -66,6 +59,43 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ children }) => {
       mediaQuery.removeEventListener('change', handleResize);
     };
   }, []);
+  //
+  const { refetch: userSettingsRefetch } = useQuery(GET_USER_SETTINGS, {
+    fetchPolicy: 'network-only',
+    skip: true,
+    client: userManageClient
+  });
+
+  const userAuthInfoStore = useSelector((state: RootState) => state.user.userAuthInfo);
+  const userSettingsStore = useSelector((state: RootState) => state.user.userSettings);
+
+  const fetchSettings = async (_userId: string) => {
+    try {
+      const result: any = await userSettingsRefetch({
+        userId: _userId
+      });
+      const _data: any = result?.data?.getUserSettings?.data;
+      if (_data) {
+        const _userSettings = _data as IUserSettings;
+        dispatch(updateUserSettingsState({ theme: _userSettings.theme }));
+      }
+    } catch (err) {
+      console.log('Fetch User settings Error::', err);
+    }
+  };
+
+  useEffect(() => {
+    if (userAuthInfoStore?.userId && userAuthInfoStore?.userId?.length > 0) {
+      fetchSettings(userAuthInfoStore?.userId);
+    }
+  }, [userAuthInfoStore?.userId]);
+
+  useEffect(() => {
+    if (userSettingsStore.theme) {
+      const isDarkTheme = userSettingsStore.theme == 'dark';
+      document.body.classList.toggle('dark-theme', isDarkTheme);
+    }
+  }, [userSettingsStore.theme]);
   //
   return (
     <>
