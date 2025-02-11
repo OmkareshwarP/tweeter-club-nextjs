@@ -24,7 +24,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const resetPasswordClickHandler = async () => {
     toast.loading('please wait...');
     const actionCodeSettings = {
-      url: 'http://localhost:3000', //TODO:: replace with original url
+      url: process.env.NEXTAUTH_AUTH_DOMAIN_URL as string,
       handleCodeInApp: true
     };
     try {
