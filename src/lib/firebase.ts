@@ -1,5 +1,7 @@
+import { resetAuthState } from '@/redux/slices/authSlice';
+import store from '@/redux/store';
 import { FirebaseError, FirebaseOptions, initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, User as FBUser, unlink } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User as FBUser, unlink, signOut } from 'firebase/auth';
 
 export type { FBUser };
 
@@ -51,4 +53,19 @@ export const unlinkProvider = async (providerId: string) => {
     const firebaseError = error as FirebaseError;
     console.error('Error unlinking provider:', firebaseError.message);
   }
+};
+
+export const logOutHandler = async () => {
+  const currentState = store.getState();
+
+  if (currentState.auth.currentProvider == 'google.com') {
+    await unlinkProvider('google.com');
+  }
+
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('fbToken');
+
+  store.dispatch(resetAuthState());
+
+  await signOut(fbAuth);
 };

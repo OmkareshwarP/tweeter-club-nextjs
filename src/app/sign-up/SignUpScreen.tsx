@@ -5,10 +5,14 @@ import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { isValidEmail } from '@/lib/constants';
-import { fbAuth } from '@/lib/firebase';
+import { fbAuth, handleFirebaseError, logOutHandler } from '@/lib/firebase';
 import { Divider, PasswordInputText } from '../common';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import { IResponseData } from '@/interfaces';
+import { useMutation } from '@apollo/client';
+import { CREATE_USER } from '@/graphql/mutations';
+import { userManageClient } from '@/lib/apollo-client';
 
 const SignUpScreen: React.FC = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -23,21 +27,56 @@ const SignUpScreen: React.FC = () => {
   const _inputClassName =
     'text-black w-full bg-[#efefef] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500';
 
+  const [createUser] = useMutation(CREATE_USER, { client: userManageClient });
+
+  const createUserHandler = async (): Promise<IResponseData | null> => {
+    const res = await fetch('/api/ip');
+    const data = await res.json();
+    const _ipAddress = data?.ip || '';
+    const _currentUser = fbAuth.currentUser;
+    const _providerId = _currentUser?.providerData[0]?.providerId;
+    const response = await createUser({
+      variables: {
+        userIdentifier: _currentUser?.email,
+        provider: _providerId,
+        name,
+        username,
+        profilePictureMediaId: _currentUser?.photoURL,
+        signUpIpv4Address: _ipAddress
+      }
+    });
+    const result = response.data.createUser as IResponseData;
+    return result;
+  };
+
   const signUpOnClickHandler = async () => {
     toast.loading('please wait...');
     try {
       const userCredential = await createUserWithEmailAndPassword(fbAuth, email, password);
       if (!userCredential || !userCredential?.user?.uid) {
         toast.dismiss();
-        console.log('create user credential error::', userCredential);
         toast.error('something went wrong while registering account. please try again later.');
       } else {
+        const fbToken = await userCredential.user.getIdToken();
+        localStorage.setItem('authToken', fbToken);
+        const _createUserData = await createUserHandler();
         toast.dismiss();
-        await signOut(fbAuth);
-        toast.success('user successfully registered.');
+        if (!_createUserData?.error) {
+          toast.success('user successfully registered.');
+          resetFormData();
+        } else {
+          toast.error(_createUserData?.message);
+        }
       }
+      await signOut(fbAuth);
+      await logOutHandler();
     } catch (e) {
       toast.dismiss();
+      const { isFirebaseError, message } = handleFirebaseError(e);
+      if (isFirebaseError) {
+        toast.error(message);
+        return;
+      }
       console.log('signUpError::', e);
       toast.error('something went wrong while registering account. please try again later.');
     }
@@ -86,6 +125,15 @@ const SignUpScreen: React.FC = () => {
       router.replace('/');
     }
   }, [isAuthenticated, router]);
+
+  const resetFormData = () => {
+    setEmail('');
+    setPassword('');
+    setName('');
+    setUsername('');
+    setIsChecked(false);
+    setErrorMessage('');
+  };
 
   if (isAuthenticated) {
     return <div>User is already logged in. Redirecting to home…</div>;
