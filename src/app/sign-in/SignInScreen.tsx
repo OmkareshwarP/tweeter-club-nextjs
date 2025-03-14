@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -362,4 +362,12 @@ const SignInScreen: React.FC = () => {
   }
 };
 
-export default SignInScreen;
+export default function WrappedSignIn() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInScreen />
+    </Suspense>
+  );
+}
+
+// export default SignInScreen;
