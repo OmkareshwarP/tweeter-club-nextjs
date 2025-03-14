@@ -1,40 +1,73 @@
 'use client';
 
+import { GET_USER_BASIC_INFO } from '@/graphql/queries';
+import { IResponseData, IAuthUserInfo } from '@/interfaces';
+import { userManageClient } from '@/lib/apollo-client';
 import { normalRoutes, protectedRoutes } from '@/lib/constants';
-import { fbAuth } from '@/lib/firebase';
-import { setAuthState } from '@/redux/slices/authSlice';
+import { fbAuth, logOutHandler } from '@/lib/firebase';
+import { setAuthUserInfoState, setCurrentProviderState, setIsAuthenticatedState } from '@/redux/slices/authSlice';
 import store, { RootState } from '@/redux/store';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { usePathname, useRouter } from 'next/navigation';
+import { useQuery } from '@apollo/client';
+import { onAuthStateChanged } from 'firebase/auth';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { Provider, useDispatch, useSelector } from 'react-redux';
+import DashboardScreen from '../DashboardScreen';
 
 interface ILayoutComponentProps {
   children: React.ReactNode;
 }
 
 const LayoutComponent: React.FC<ILayoutComponentProps> = ({ children }) => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const { isAuthenticated, fbUserId } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const router = useRouter();
+
+  const { refetch: userBasicInfoRefetch } = useQuery(GET_USER_BASIC_INFO, { client: userManageClient, skip: true });
 
   const isProtectedRoute = protectedRoutes.includes(pathname);
   const isNormalRoute = normalRoutes.includes(pathname);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(fbAuth, async (authUser) => {
-      if (!authUser) {
-        dispatch(setAuthState({ isAuthenticated: false }));
+      const _token = localStorage.getItem('authToken');
+      if (authUser && authUser.uid && _token && _token?.length > 5) {
+        dispatch(setIsAuthenticatedState({ isAuthenticated: true, fbUserId: authUser.uid }));
+        dispatch(setCurrentProviderState({ currentProvider: authUser.providerData[0]?.providerId }));
         return;
       }
-      dispatch(setAuthState({ isAuthenticated: true }));
+
+      dispatch(setIsAuthenticatedState({ isAuthenticated: false, fbUserId: null }));
     });
 
     return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getUserBasicInfo = async () => {
+    const response = await userBasicInfoRefetch();
+    const result: IResponseData = response.data?.getUserBasicInfo;
+    if (result.error == false) {
+      const userData: IAuthUserInfo = result.data;
+      console.log({ userData });
+      dispatch(setAuthUserInfoState({ authUserInfo: userData }));
+      if (userData.userId !== fbUserId) {
+        toast.error('Unauthorized - Logging out');
+        await logOutHandler();
+      }
+    } else {
+      await logOutHandler();
+      toast.error(result.message);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && fbUserId) {
+      getUserBasicInfo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, fbUserId]);
 
   if (isProtectedRoute) {
     return <>ProtectedRoute</>;
@@ -45,29 +78,7 @@ const LayoutComponent: React.FC<ILayoutComponentProps> = ({ children }) => {
       <div className={'w-[100%] h-[100%]'}>
         <Toaster />
         {children}
-        {isAuthenticated ? (
-          <>
-            <div
-              className='mt-5 ml-5 bg-white px-3 py-1 font-semibold w-fit text-black rounded-lg shadow-lg cursor-pointer'
-              onClick={async () => {
-                await signOut(fbAuth);
-              }}
-            >
-              SignOut
-            </div>
-          </>
-        ) : (
-          <>
-            <div
-              className='mt-5 ml-5 bg-white px-3 py-1 font-semibold w-fit text-black rounded-lg shadow-lg cursor-pointer'
-              onClick={() => {
-                router.push('sign-in');
-              }}
-            >
-              SignIn
-            </div>
-          </>
-        )}
+        <DashboardScreen />
       </div>
     );
   }
