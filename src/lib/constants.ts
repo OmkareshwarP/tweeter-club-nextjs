@@ -10,3 +10,7 @@ export const isValidEmail = (email: string): boolean => {
 
 export const protectedRoutes = ['/analytics'];
 export const normalRoutes = ['/about', '/contact-us', '/terms', '/privacy'];
+
+export const pageReload = () => {
+  window.location.reload();
+};
