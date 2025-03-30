@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { isValidEmail } from '@/lib/constants';
+import { allowedSecondaryPaths, isValidEmail } from '@/lib/constants';
 import { fbAuth } from '@/lib/firebase';
 import { Divider } from '../common';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
@@ -17,6 +17,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isPasswordResetEmailSent, setIsPasswordResetEmailSent] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const _inputClassName =
     'text-black w-full bg-[#efefef] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500';
@@ -69,9 +70,18 @@ const ForgotPasswordScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    let isValidRoute = true;
+    const secondaryRoutes = pathname.split('/');
+    if (secondaryRoutes.length > 3) {
+      isValidRoute = false;
+    } else if (secondaryRoutes.length > 2) {
+      isValidRoute = allowedSecondaryPaths.includes(secondaryRoutes[2]);
+    }
+
+    if (isAuthenticated && isValidRoute) {
       router.replace('/');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, router]);
 
   if (isAuthenticated) {
