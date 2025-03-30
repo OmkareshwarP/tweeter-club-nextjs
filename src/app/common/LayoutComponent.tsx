@@ -14,13 +14,14 @@ import { useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import DashboardScreen from '../DashboardScreen';
+import SignInScreen from '../sign-in/SignInScreen';
 
 interface ILayoutComponentProps {
   children: React.ReactNode;
 }
 
 const LayoutComponent: React.FC<ILayoutComponentProps> = ({ children }) => {
-  const { isAuthenticated, fbUserId } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, fbUserId, authUserInfo } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const pathname = usePathname();
 
@@ -72,13 +73,14 @@ const LayoutComponent: React.FC<ILayoutComponentProps> = ({ children }) => {
   if (isProtectedRoute) {
     return <>ProtectedRoute</>;
   } else if (isNormalRoute) {
-    return <>NormalRoute</>;
+    return <>{children}</>;
   } else {
     return (
-      <div className={'w-[100%] h-[100%]'}>
+      <div className={'w-[100%] h-[100%] flex flex-row justify-center items-start'}>
         <Toaster />
-        {children}
-        <DashboardScreen />
+        <div className='h-[100%] w-[100%] max-w-[1080px]'>
+          {isAuthenticated && authUserInfo?.userId ? <DashboardScreen> {children}</DashboardScreen> : <SignInScreen />}
+        </div>
       </div>
     );
   }
