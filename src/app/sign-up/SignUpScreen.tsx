@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { isValidEmail } from '@/lib/constants';
+import { allowedSecondaryPaths, isValidEmail } from '@/lib/constants';
 import { fbAuth, handleFirebaseError, logOutHandler } from '@/lib/firebase';
 import { Divider, PasswordInputText } from '../common';
 import { useSelector } from 'react-redux';
@@ -23,6 +23,7 @@ const SignUpScreen: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const router = useRouter();
+  const pathname = usePathname();
 
   const _inputClassName =
     'text-black w-full bg-[#efefef] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500';
@@ -121,9 +122,18 @@ const SignUpScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    let isValidRoute = true;
+    const secondaryRoutes = pathname.split('/');
+    if (secondaryRoutes.length > 3) {
+      isValidRoute = false;
+    } else if (secondaryRoutes.length > 2) {
+      isValidRoute = allowedSecondaryPaths.includes(secondaryRoutes[2]);
+    }
+
+    if (isAuthenticated && isValidRoute) {
       router.replace('/');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, router]);
 
   const resetFormData = () => {

@@ -1,4 +1,4 @@
-import { IAuthUserInfo } from './User';
+import { IAuthUserInfo, IUserInfo } from './User';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface IResponseData {
@@ -9,4 +9,4 @@ interface IResponseData {
   data: any;
 }
 
-export type { IResponseData, IAuthUserInfo };
+export type { IResponseData, IAuthUserInfo, IUserInfo };

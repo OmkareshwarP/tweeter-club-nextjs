@@ -2,10 +2,10 @@
 
 import React, { Suspense, useEffect, useState } from 'react';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
-import { isValidEmail, pageReload } from '@/lib/constants';
+import { allowedSecondaryPaths, isValidEmail, pageReload } from '@/lib/constants';
 import { fbAuth, FBUser, handleFirebaseError, logOutHandler } from '@/lib/firebase';
 import { Divider, PasswordInputText } from '../common';
 import { useSelector } from 'react-redux';
@@ -24,6 +24,7 @@ const SignInScreen: React.FC = () => {
   const [name, setName] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const redirectUrl = searchParams.get('redirect') || '/';
@@ -68,12 +69,13 @@ const SignInScreen: React.FC = () => {
   };
 
   const googleLoginClickHandler = async () => {
+    toast.loading('please wait...');
     try {
-      toast.loading('please wait...');
       const googleProvider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(fbAuth, googleProvider);
 
       if (!userCredential || !userCredential?.user?.uid) {
+        toast.dismiss();
         toast.error('Something went wrong while login with google');
         return;
       }
@@ -102,6 +104,7 @@ const SignInScreen: React.FC = () => {
         pageReload();
       }
     } catch (error: unknown) {
+      toast.dismiss();
       const { isFirebaseError, message } = handleFirebaseError(error);
       if (isFirebaseError && message !== '') {
         toast.error(message);
@@ -120,9 +123,8 @@ const SignInScreen: React.FC = () => {
       await logOutHandler();
       return;
     }
-
+    toast.loading('please wait...');
     try {
-      toast.loading('please wait...');
       const _createUserData = await createUserHandler();
       if (_createUserData?.error) {
         toast.dismiss();
@@ -150,6 +152,7 @@ const SignInScreen: React.FC = () => {
         }
       }
     } catch (error: unknown) {
+      toast.dismiss();
       await logOutHandler();
       setIsNewUser(false);
       const { isFirebaseError, message } = handleFirebaseError(error);
@@ -237,9 +240,23 @@ const SignInScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace('/');
+    //TODO:: remove this code later
+    let isValidRoute = true;
+    const secondaryRoutes = pathname.split('/');
+    if (secondaryRoutes.length > 3) {
+      isValidRoute = false;
+    } else if (secondaryRoutes.length > 2) {
+      isValidRoute = allowedSecondaryPaths.includes(secondaryRoutes[2]);
     }
+
+    if (isAuthenticated && isValidRoute) {
+      if (pathname == '/sign-in') {
+        router.replace('/');
+      } else {
+        router.replace(window.location.href);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, router]);
 
   const resetFormData = () => {
@@ -266,7 +283,7 @@ const SignInScreen: React.FC = () => {
                 className='flex flex-row justify-center items-center space-x-2 bg-white border-b-2 border-gray-200 rounded-lg shadow-lg px-2 py-1 cursor-pointer'
                 onClick={googleLoginClickHandler}
               >
-                <Image src={`/assets/images/google.png`} alt='google-login' width={20} height={20} />
+                <Image src={`/assets/images/google-icon.svg`} alt='google-login' width={20} height={20} />
                 <div className='text-[#1d1c1c] font-semibold text-[20px]'>Google</div>
               </div>
               <Divider />
